@@ -1,0 +1,37 @@
+# This is an example .goreleaser.yml file with some sane defaults.
+# Make sure to check the documentation at http://goreleaser.com
+version: 2
+before:
+  hooks:
+    - go mod tidy
+builds:
+  - id: linux-amd64
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+    goarch:
+      - amd64
+    main: ./cmd/awx-syslog/awx_syslog.go
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    ldflags:
+      - -s -w -X github.com/juanfont/awx-syslog/cmd/awx-syslog/cli.Version=v{{.Version}}
+
+archives:
+  - id: golang-cross
+    builds:
+      - linux-amd64
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format: binary
+    # wrap_in_directory: true
+
+checksum:
+  name_template: "checksums.txt"
+snapshot:
+  name_template: "{{ .Tag }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
