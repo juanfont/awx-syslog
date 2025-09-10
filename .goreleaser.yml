@@ -12,7 +12,8 @@ builds:
       - linux
     goarch:
       - amd64
-    main: ./cmd/awx-syslog/awx_syslog.go
+    main: ./cmd/awx-syslog/awxsyslog.go
+    binary: awx-syslog
     mod_timestamp: "{{ .CommitTimestamp }}"
     ldflags:
       - -s -w -X github.com/juanfont/awx-syslog/cmd/awx-syslog/cli.Version=v{{.Version}}
