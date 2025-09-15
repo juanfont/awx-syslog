@@ -43,7 +43,9 @@ func (a *App) handleEndpoint(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Info().Msgf("Received log: %s", string(body))
+	log.Info().
+		Any("body", body).
+		Msg("Received log")
 	awxSyslogEventsReceived.Inc()
 
 	loggerType, commonFields, data, err := parseAWXLog(body)

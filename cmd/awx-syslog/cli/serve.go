@@ -4,6 +4,7 @@ import (
 	awxsyslog "github.com/juanfont/awx-syslog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 func init() {
@@ -34,12 +35,12 @@ var serveCmd = &cobra.Command{
 
 func getAWXSyslogConfig() (*awxsyslog.Config, error) {
 	cfg := &awxsyslog.Config{
-		ListenAddr:    "0.0.0.0:8080",
-		LogLevel:      "info",
-		HostnameField: "awx-syslog-server",
+		ListenAddr:    viper.GetString("listen_addr"),
+		LogLevel:      viper.GetString("log_level"),
+		HostnameField: viper.GetString("hostname_field"),
 		Syslog: awxsyslog.SyslogConfig{
-			ServerAddr: "localhost:514",
-			Protocol:   "udp",
+			ServerAddr: viper.GetString("syslog.server_addr"),
+			Protocol:   viper.GetString("syslog.protocol"),
 		},
 	}
 

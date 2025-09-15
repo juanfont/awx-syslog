@@ -143,6 +143,11 @@ func addStructuredDataForLogType(msg *rfc5424.SyslogMessage, loggerType string, 
 
 // getMessageForLogType generates appropriate message ID and content based on log type
 func getMessageForLogType(loggerType string, data map[string]interface{}, commonFields CommonLogFields) (string, string) {
+	if strings.HasPrefix(loggerType, "awx") {
+		message := getStringFromData(data, "message", "No message")
+		return "AWX_LOG", message
+	}
+
 	switch loggerType {
 	case "activity_stream":
 		return getActivityStreamMessage(data)
@@ -150,11 +155,17 @@ func getMessageForLogType(loggerType string, data map[string]interface{}, common
 		return getJobEventMessage(data)
 	case "system_tracking":
 		return getSystemTrackingMessage(data)
-	case "awx":
-		return getAWXLogMessage(data)
 	default:
 		return "UNKNOWN", fmt.Sprintf("Unknown log type: %s", loggerType)
 	}
+}
+
+// getStringFromData safely extracts string value from data map
+func getStringFromData(data map[string]interface{}, key, defaultValue string) string {
+	if value, ok := data[key].(string); ok {
+		return value
+	}
+	return defaultValue
 }
 
 // getActivityStreamMessage generates message for activity stream logs
@@ -214,27 +225,4 @@ func getSystemTrackingMessage(data map[string]interface{}) (string, string) {
 	message := fmt.Sprintf("System tracking scan (%s) for host %s", scanType, host)
 
 	return messageID, message
-}
-
-// getAWXLogMessage generates message for generic AWX logs
-func getAWXLogMessage(data map[string]interface{}) (string, string) {
-	msg := getStringFromData(data, "msg", "No message")
-
-	messageID := "AWX_LOG"
-
-	// Check if it's an error log with traceback
-	if traceback, ok := data["traceback"].(string); ok && traceback != "" {
-		messageID = "AWX_ERROR"
-		return messageID, fmt.Sprintf("AWX Error: %s", msg)
-	}
-
-	return messageID, msg
-}
-
-// getStringFromData safely extracts string value from data map
-func getStringFromData(data map[string]interface{}, key, defaultValue string) string {
-	if value, ok := data[key].(string); ok {
-		return value
-	}
-	return defaultValue
 }
